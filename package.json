@@ -17,6 +17,7 @@
   "license": "ISC",
   "dependencies": {
     "chalk": "^4.1.0",
+    "ora": "^5.1.0",
     "yargs": "^16.0.3"
   }
 }

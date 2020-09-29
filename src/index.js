@@ -1,9 +1,9 @@
 const chalk = require('chalk');
-const { spawnSync } = require('child_process');
-const { writeFileSync, readFile } = require('fs');
-const { mkdirSync, copyFileSync } = require('fs');
-const { exit, chdir } = require('process');
+const { spawn } = require('child_process');
+const { copyFile, mkdirSync, readFile, writeFileSync } = require('fs');
+const ora = require('ora');
 const path = require('path');
+const { exit, chdir } = require('process');
 const yargs = require('yargs');
 
 const VALID_TEMPLATES = [
@@ -40,42 +40,76 @@ if (template && VALID_TEMPLATES.includes(template)) {
   exit(1);
 }
 
+let spinner = ora('Running `create-react-app`...');
 const createReactApp = () => {
-  console.info('Running `create-react-app`...');
-  spawnSync('npx', args, {
-    shell: true,
-  });
+  spinner.start();
 
-  chdir(path.join(__dirname, '..', projectName));
+  return new Promise((res, rej) => {
+    const npx = spawn('npx', args, {
+      shell: true,
+    });
+
+    npx.on('close', () => {
+      chdir(path.join(__dirname, '..', projectName));
+      spinner.succeed();
+      res();
+    });
+  });
 };
 
-// Install Tailwind dependencies
+/**
+ * Installs Tailwind dependencies including `postcss-cli`, `autoprefixer`, and `tailwindcss`.
+ */
 const installTailwind = () => {
-  console.info('Installing Tailwind dependencies...');
-  spawnSync(INSTALL_TAILWIND_DEPS_CMD, {
-    shell: true,
+  // ora('Installing Tailwind dependencies...').start();
+  spinner.start('Installing Tailwind dependencies...');
+
+  return new Promise((res, rej) => {
+    const deps = spawn(INSTALL_TAILWIND_DEPS_CMD, {
+      shell: true,
+    });
+
+    deps.on('close', () => {
+      spinner.succeed();
+      res();
+    });
   });
 }
 
-// Initialise Tailwind config + PostCSS
+/**
+ * Initialises the Tailwind configuration file.
+ */
 const configureTailwind = () => {
-  console.info('Initialising Tailwind configuration');
-  spawnSync(SPAWN_TAILWIND_CONFIG_CMD, {
-    shell: true,
-  });
+  spinner.start('Initialising Tailwind configuration...');
 
-  // Create assets directory and navigate back to root
-  mkdirSync('./src/assets', {
-    recursive: true,
-  });
-  chdir(path.join(__dirname, '..'));
+  return new Promise((res, rej) => {
+    const config = spawn(SPAWN_TAILWIND_CONFIG_CMD, {
+      shell: true,
+    });
 
-  // Copy the `tailwind.css` stub
-  copyFileSync('./stubs/tailwind.stub.css', `./${projectName}/src/assets/tailwind.css`);
+    config.on('close', () => {
+      // Create assets directory and navigate back to root
+      mkdirSync('./src/assets', {
+        recursive: true,
+      });
+      chdir(path.join(__dirname, '..'));
+      
+      spinner.succeed();
+      res();
+    })
+  })
 }
 
-const updateScripts = () => {
-  readFile('./stubs/package.stub.json', {
+/**
+ * Updates all replaceable stubs in the generated React project.
+ */
+const updateStubs = async () => {
+  let promises = [];
+  
+  // Copy the `tailwind.css` stub
+  promises.push(copyFile('./stubs/tailwind.stub.css', `./${projectName}/src/assets/tailwind.css`, () => void 0));
+
+  promises.push(readFile(path.join(__dirname, '..', 'stubs', 'package.stub.json'), {
     encoding: 'utf8',
   }, (err, data) => {
     if (err) return console.error(err);
@@ -92,11 +126,13 @@ const updateScripts = () => {
         encoding: 'utf8',
       },
     );
-  })
+  }));
 
-  readFile('./stubs/App.stub.tsx', {
+  promises.push(readFile(path.join(__dirname, '..', 'stubs', 'App.stub.tsx'), {
     encoding: 'utf8',
   }, (err, data) => {
+    if (err) return console.error(err);
+
     const withReplacedImport = data.replace(/\<tailwind\>/g, `import './assets/main.css'`);
 
     writeFileSync(
@@ -106,14 +142,20 @@ const updateScripts = () => {
         encoding: 'utf8',
       },
     )
-  })
+  }));
+
+  await Promise.all(promises);
 };
 
-createReactApp();
-installTailwind();
-configureTailwind();
-updateScripts();
+const main = async () => {
+  await createReactApp();
+  await installTailwind();
+  await configureTailwind();
+  await updateStubs();
+};
 
-console.info(`\n🎉 ${projectName} is ready! To get started:\n`);
-console.info(`\t${chalk.blue('cd')} ${projectName}`);
-console.info(`\t${chalk.blue('yarn')} start\n`);
+main().then(() => {
+  console.info(`\n🎉 ${projectName} is ready! To get started:\n`);
+  console.info(`\t${chalk.blue('cd')} ${projectName}`);
+  console.info(`\t${chalk.blue('yarn')} start\n`);
+});
