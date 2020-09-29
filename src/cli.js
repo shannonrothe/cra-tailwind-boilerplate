@@ -7,7 +7,7 @@ const {
 } = require('fs');
 const ora = require('ora');
 const path = require('path');
-const { exit, chdir } = require('process');
+const { exit, chdir, cwd } = require('process');
 const yargs = require('yargs');
 
 const VALID_TEMPLATES = [
@@ -50,7 +50,9 @@ if (template && VALID_TEMPLATES.includes(template)) {
   exit(1);
 }
 
-const baseDir = process.cwd();
+const projectDir = path.join(cwd(), projectName);
+const baseDir = path.resolve(__dirname, '../');
+
 const spinner = verbose ? {
   start: () => undefined,
   succeed: () => undefined,
@@ -67,7 +69,7 @@ const createReactApp = () => {
 
     npx.on('close', () => {
       // TODO(shannon): Fix this when the project path/name isn't relative
-      chdir(path.join(projectName));
+      chdir(projectDir);
       spinner.succeed();
       res();
     });
@@ -108,7 +110,7 @@ const configureTailwind = () => {
 
     config.on('close', () => {
       // Create assets directory and navigate back to root
-      mkdirSync('./src/assets', {
+      mkdirSync(path.join(__dirname, 'src', 'assets'), {
         recursive: true,
       });
       chdir(baseDir);
@@ -128,7 +130,7 @@ const updateStubs = async () => {
   // Copy the `tailwind.css` stub
   promises.push(copyFile(
     path.join(baseDir, 'stubs', 'tailwind.stub.css'),
-    path.join(projectName, 'src', 'assets', 'tailwind.css'),
+    path.join(projectDir, 'src', 'assets', 'tailwind.css'),
     () => undefined,
   ));
 
@@ -163,9 +165,8 @@ const updateStubs = async () => {
 
     const withReplacedImport = data.replace(/<tailwind>/g, 'import \'./assets/main.css\'');
 
-    chdir(baseDir);
     writeFileSync(
-      path.join(projectName, 'src', 'App.tsx'),
+      path.join(projectDir, 'src', 'App.tsx'),
       withReplacedImport,
       {
         encoding: 'utf8',

@@ -1,6 +1,6 @@
 {
   "name": "cra-tailwind-boilerplate",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "A simple CLI to bootstrap a React app w/ Tailwind integrated.",
   "main": "src/cli.js",
   "bin": {
