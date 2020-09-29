@@ -25,7 +25,7 @@ const { argv } = yargs.option('t', {
 });
 
 const projectName = argv._.pop();
-if (path.isAbsolute(projectName)) {
+if (projectName && path.isAbsolute(projectName)) {
   // eslint-disable-next-line no-console
   console.error('You can only create projects in your current directory.');
   exit(1);
@@ -39,7 +39,7 @@ const args = [
 
 if (template && VALID_TEMPLATES.includes(template)) {
   args.push(`--template ${template}`);
-} else {
+} else if (template && !VALID_TEMPLATES.includes(template)) {
   // eslint-disable-next-line no-console
   console.error(`${template} is not a valid template.`);
   exit(1);
@@ -174,8 +174,10 @@ const main = async () => {
   await updateStubs();
 };
 
-main().then(() => {
-  console.info(`\n🎉 ${projectName} is ready! To get started:\n`); // eslint-disable-line no-console
-  console.info(`\t${chalk.blue('cd')} ${projectName}`); // eslint-disable-line no-console
-  console.info(`\t${chalk.blue('yarn')} start\n`); // eslint-disable-line no-console
-});
+if (process.env.NODE_ENV !== 'test') {
+  main().then(() => {
+    console.info(`\n🎉 ${projectName} is ready! To get started:\n`); // eslint-disable-line no-console
+    console.info(`\t${chalk.blue('cd')} ${projectName}`); // eslint-disable-line no-console
+    console.info(`\t${chalk.blue('yarn')} start\n`); // eslint-disable-line no-console
+  });
+}
