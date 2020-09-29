@@ -14,13 +14,11 @@ Then, run `cra-tailwind-boilerplate` via `npx`:
 npx cra-tailwind-boilerplate my-project
 ```
 
-This will bootstrap your application with the provided name.
+This will bootstrap your application inside `./my-project/`.
 
-## Notes
+### Command Line Arguments
 
-You can also pass an optional `--template` (or `-t`) option to the command to specify the `create-react-app` template to use.
-
-For example:
-```bash
-npx cra-tailwind-boilerplate my-project --template typescript
-```
+| Argument           | Description                                                                                                              |
+|--------------------|--------------------------------------------------------------------------------------------------------------------------|
+| `--template`, `-t` | Specifies the `create-react-app` template to use, e.g. `typescript`                                                      |
+| `--version`, `-v`  | Verbose. If enabled will show the output of the underlying commands. If not, will show progress messages in the console. |
