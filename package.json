@@ -1,0 +1,16 @@
+{
+  "name": "cra-tailwind-boilerplate",
+  "version": "1.0.0",
+  "description": "A simple CLI to bootstrap a React app w/ Tailwind integrated.",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node ./src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["boilerplate", "tailwindcss", "react", "create-react-app"],
+  "author": "Shannon Rothe",
+  "license": "ISC",
+  "dependencies": {
+    "yargs": "^16.0.3"
+  }
+}
