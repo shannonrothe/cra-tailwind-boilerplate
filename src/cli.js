@@ -51,7 +51,7 @@ if (template && VALID_TEMPLATES.includes(template)) {
 }
 
 const baseDir = path.resolve(__dirname, '..');
-const projectDir = path.resolve(baseDir, projectName);
+const projectDir = path.join(cwd(), projectName);
 
 const spinner = verbose ? {
   start: () => undefined,
