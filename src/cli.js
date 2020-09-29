@@ -80,7 +80,6 @@ const createReactApp = () => {
  * Installs Tailwind dependencies including `postcss-cli`, `autoprefixer`, and `tailwindcss`.
  */
 const installTailwind = () => {
-  // ora('Installing Tailwind dependencies...').start();
   spinner.start('Installing Tailwind dependencies...');
 
   return new Promise((res) => {
@@ -102,7 +101,7 @@ const installTailwind = () => {
 const configureTailwind = () => {
   spinner.start('Initialising Tailwind configuration...');
 
-  return new Promise((res) => {
+  return new Promise((res, rej) => {
     const config = spawn(SPAWN_TAILWIND_CONFIG_CMD, {
       stdio: verbose ? 'inherit' : 'ignore',
       shell: true,
@@ -110,13 +109,19 @@ const configureTailwind = () => {
 
     config.on('close', () => {
       // Create assets directory and navigate back to root
-      mkdirSync(path.join(__dirname, 'src', 'assets'), {
+      const directoryPath = mkdirSync(path.join(__dirname, 'src', 'assets'), {
         recursive: true,
       });
-      chdir(baseDir);
 
-      spinner.succeed();
-      res();
+      if (!directoryPath) {
+        spinner.fail();
+        rej();
+      } else {
+        chdir(baseDir);
+
+        spinner.succeed();
+        res();
+      }
     });
   });
 };
@@ -181,7 +186,14 @@ const updateStubs = async () => {
 const main = async () => {
   await createReactApp();
   await installTailwind();
-  await configureTailwind();
+
+  try {
+    await configureTailwind();
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.log(`\t${chalk.red('There was an issue configuring Tailwind.')}`);
+  }
+
   await updateStubs();
 };
 
