@@ -109,7 +109,7 @@ const configureTailwind = () => {
 
     config.on('close', () => {
       // Create assets directory and navigate back to root
-      const directoryPath = mkdirSync(path.join(__dirname, 'src', 'assets'), {
+      const directoryPath = mkdirSync(path.join(projectDir, 'src', 'assets'), {
         recursive: true,
       });
 
@@ -192,6 +192,7 @@ const main = async () => {
   } catch (err) {
     // eslint-disable-next-line no-console
     console.log(`\t${chalk.red('There was an issue configuring Tailwind.')}`);
+    exit(1);
   }
 
   await updateStubs();
