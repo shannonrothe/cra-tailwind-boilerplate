@@ -146,7 +146,7 @@ const updateStubs = async () => {
     asJson.scripts.css = BUILD_CSS_SCRIPT;
 
     writeFileSync(
-      path.join(projectName, 'package.json'),
+      path.join(projectDir, 'package.json'),
       JSON.stringify(asJson, null, 2),
       {
         encoding: 'utf8',
