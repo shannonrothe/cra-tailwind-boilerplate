@@ -1,13 +1,19 @@
-const { execFile, exec, execFileSync, execSync, spawn, spawnSync } = require('child_process');
-const { readFileSync } = require('fs');
-const { fstat, mkdirSync, copyFileSync } = require('fs');
-const { writeFileSync } = require('jsonfile');
-const { exit, chdir, cwd } = require('process');
+const chalk = require('chalk');
+const { spawnSync } = require('child_process');
+const { writeFileSync, readFile } = require('fs');
+const { mkdirSync, copyFileSync } = require('fs');
+const { exit, chdir } = require('process');
+const path = require('path');
 const yargs = require('yargs');
 
 const VALID_TEMPLATES = [
   'typescript',
 ];
+
+const START_SCRIPT_WITH_CSS_CMD = 'npm run css && react-scripts start';
+const BUILD_CSS_SCRIPT = 'postcss src/assets/tailwind.css -o src/assets/main.css';
+const INSTALL_TAILWIND_DEPS_CMD = `yarn add tailwindcss autoprefixer@^9.4.5 postcss-cli@^7.0.11 -D`;
+const SPAWN_TAILWIND_CONFIG_CMD = `npx tailwind init --full -p`;
 
 const argv = yargs
   .command('name', 'the project name', (yargs) => {
@@ -40,16 +46,13 @@ const createReactApp = () => {
     shell: true,
   });
 
-  chdir(`./${projectName}`);
+  chdir(path.join(__dirname, '..', projectName));
 };
-
-const tailwindDepsCmd = `yarn add tailwindcss autoprefixer@^9.4.5 postcss-cli@^7.0.11 -D`;
-const tailwindConfigCmd = `npx tailwind init --full -p`;
 
 // Install Tailwind dependencies
 const installTailwind = () => {
   console.info('Installing Tailwind dependencies...');
-  spawnSync(tailwindDepsCmd, {
+  spawnSync(INSTALL_TAILWIND_DEPS_CMD, {
     shell: true,
   });
 }
@@ -57,34 +60,60 @@ const installTailwind = () => {
 // Initialise Tailwind config + PostCSS
 const configureTailwind = () => {
   console.info('Initialising Tailwind configuration');
-  spawnSync(tailwindConfigCmd, {
+  spawnSync(SPAWN_TAILWIND_CONFIG_CMD, {
     shell: true,
   });
 
-  mkdirSync('./src/assets');
+  // Create assets directory and navigate back to root
+  mkdirSync('./src/assets', {
+    recursive: true,
+  });
+  chdir(path.join(__dirname, '..'));
 
-  chdir('../');
-
+  // Copy the `tailwind.css` stub
   copyFileSync('./stubs/tailwind.stub.css', `./${projectName}/src/assets/tailwind.css`);
 }
 
 const updateScripts = () => {
-  const packageJsonFile = readFileSync('./stubs/package.stub.json', {
+  readFile('./stubs/package.stub.json', {
     encoding: 'utf8',
+  }, (err, data) => {
+    if (err) return console.error(err);
+
+    const asJson = JSON.parse(data);
+    asJson.name = projectName;
+    asJson.scripts.start = START_SCRIPT_WITH_CSS_CMD;
+    asJson.scripts.css = BUILD_CSS_SCRIPT;
+  
+    writeFileSync(
+      path.join(__dirname, '..', projectName, 'package.json'),
+      JSON.stringify(asJson, null, 4),
+      {
+        encoding: 'utf8',
+      },
+    );
   })
-  const withReplacedPackageName = packageJsonFile.replace(/\<project\-name\>/g, projectName);
 
-  console.log(withReplacedPackageName);
+  readFile('./stubs/App.stub.tsx', {
+    encoding: 'utf8',
+  }, (err, data) => {
+    const withReplacedImport = data.replace(/\<tailwind\>/g, `import './assets/main.css'`);
 
-  writeFileSync(
-    `./${projectName}/package.json`, 
-    withReplacedPackageName,
-  );
+    writeFileSync(
+      path.join(__dirname, '..', projectName, 'src', 'App.tsx'),
+      withReplacedImport,
+      {
+        encoding: 'utf8',
+      },
+    )
+  })
 };
 
-// createReactApp();
-// installTailwind();
-// configureTailwind();
+createReactApp();
+installTailwind();
+configureTailwind();
 updateScripts();
 
-console.info(`🎉 ${projectName} is ready!`);
+console.info(`\n🎉 ${projectName} is ready! To get started:\n`);
+console.info(`\t${chalk.blue('cd')} ${projectName}`);
+console.info(`\t${chalk.blue('yarn')} start\n`);

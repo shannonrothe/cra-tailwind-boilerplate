@@ -7,10 +7,16 @@
     "start": "node ./src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["boilerplate", "tailwindcss", "react", "create-react-app"],
+  "keywords": [
+    "boilerplate",
+    "tailwindcss",
+    "react",
+    "create-react-app"
+  ],
   "author": "Shannon Rothe",
   "license": "ISC",
   "dependencies": {
+    "chalk": "^4.1.0",
     "yargs": "^16.0.3"
   }
 }
