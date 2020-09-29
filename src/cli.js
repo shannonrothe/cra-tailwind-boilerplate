@@ -145,7 +145,6 @@ const updateStubs = async () => {
     asJson.scripts.start = START_SCRIPT_WITH_CSS_CMD;
     asJson.scripts.css = BUILD_CSS_SCRIPT;
 
-    chdir(baseDir);
     writeFileSync(
       path.join(projectName, 'package.json'),
       JSON.stringify(asJson, null, 2),
