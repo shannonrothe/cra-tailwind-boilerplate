@@ -49,13 +49,13 @@ if (template && VALID_TEMPLATES.includes(template)) {
 }
 
 const baseDir = cwd();
-
 const spinner = verbose ? {
   start: () => undefined,
   succeed: () => undefined,
-} : ora('Running `create-react-app`...');
+} : ora();
+
 const createReactApp = () => {
-  spinner.start();
+  spinner.start('Running `create-react-app`...');
 
   return new Promise((res) => {
     const npx = spawn('npx', args, {
