@@ -7,7 +7,7 @@ const {
 } = require('fs');
 const ora = require('ora');
 const path = require('path');
-const { exit, chdir, cwd } = require('process');
+const { exit, chdir } = require('process');
 const yargs = require('yargs');
 
 const VALID_TEMPLATES = [
@@ -50,7 +50,7 @@ if (template && VALID_TEMPLATES.includes(template)) {
   exit(1);
 }
 
-const baseDir = cwd();
+const baseDir = process.cwd();
 const spinner = verbose ? {
   start: () => undefined,
   succeed: () => undefined,
