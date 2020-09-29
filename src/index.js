@@ -22,6 +22,9 @@ const { argv } = yargs.option('t', {
   demandOption: false,
   type: 'string',
   choices: ['typescript'],
+}).option('v', {
+  alias: 'verbose',
+  demandOption: false,
 });
 
 const projectName = argv._.pop();
@@ -31,7 +34,7 @@ if (projectName && path.isAbsolute(projectName)) {
   exit(1);
 }
 
-const { template } = argv;
+const { template, verbose } = argv;
 const args = [
   'create-react-app',
   projectName,
@@ -47,12 +50,16 @@ if (template && VALID_TEMPLATES.includes(template)) {
 
 const baseDir = cwd();
 
-const spinner = ora('Running `create-react-app`...');
+const spinner = verbose ? {
+  start: () => undefined,
+  succeed: () => undefined,
+} : ora('Running `create-react-app`...');
 const createReactApp = () => {
   spinner.start();
 
   return new Promise((res) => {
     const npx = spawn('npx', args, {
+      stdio: verbose ? 'inherit' : 'ignore',
       shell: true,
     });
 
@@ -74,6 +81,7 @@ const installTailwind = () => {
 
   return new Promise((res) => {
     const deps = spawn(INSTALL_TAILWIND_DEPS_CMD, {
+      stdio: verbose ? 'inherit' : 'ignore',
       shell: true,
     });
 
@@ -92,6 +100,7 @@ const configureTailwind = () => {
 
   return new Promise((res) => {
     const config = spawn(SPAWN_TAILWIND_CONFIG_CMD, {
+      stdio: verbose ? 'inherit' : 'ignore',
       shell: true,
     });
 
