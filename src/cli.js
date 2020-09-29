@@ -68,7 +68,6 @@ const createReactApp = () => {
     });
 
     npx.on('close', () => {
-      // TODO(shannon): Fix this when the project path/name isn't relative
       chdir(projectDir);
       spinner.succeed();
       res();
