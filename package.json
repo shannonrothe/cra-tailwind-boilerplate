@@ -1,10 +1,10 @@
 {
   "name": "cra-tailwind-boilerplate",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A simple CLI to bootstrap a React app w/ Tailwind integrated.",
   "main": "src/index.js",
   "bin": {
-    "cra-tailwind-boilerplate": "src/index.js"
+    "cra-tailwind-boilerplate": "node src/index.js"
   },
   "scripts": {
     "test": "NODE_ENV=test jest --rootDir ./src"
