@@ -17,7 +17,7 @@ const VALID_TEMPLATES = [
 const START_SCRIPT_WITH_CSS_CMD = 'npm run css && react-scripts start';
 const BUILD_CSS_SCRIPT = 'postcss src/assets/tailwind.css -o src/assets/main.css';
 const INSTALL_TAILWIND_DEPS_CMD = 'yarn add tailwindcss autoprefixer@^9.4.5 postcss-cli@^7.0.11 -D';
-const SPAWN_TAILWIND_CONFIG_CMD = 'npx tailwind init --full -p';
+const SPAWN_TAILWIND_CONFIG_CMD = 'npx tailwind init --full';
 
 const { argv } = yargs.option('t', {
   alias: 'template',
@@ -135,6 +135,13 @@ const updateStubs = async () => {
   promises.push(copyFile(
     path.join(baseDir, 'stubs', 'tailwind.stub.css'),
     path.join(projectDir, 'src', 'assets', 'tailwind.css'),
+    () => undefined,
+  ));
+
+  // Copy PostCSS config stub
+  promises.push(copyFile(
+    path.join(baseDir, 'stubs', 'postcss.config.stub.js'),
+    path.join(projectDir, 'postcss.config.js'),
     () => undefined,
   ));
 
