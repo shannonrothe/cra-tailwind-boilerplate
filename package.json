@@ -1,8 +1,12 @@
 {
   "name": "cra-tailwind-boilerplate",
-  "version": "1.0.13",
+  "version": "1.0.14",
   "description": "A simple CLI to bootstrap a React app w/ Tailwind integrated.",
   "main": "src/cli.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shannonrothe/cra-tailwind-boilerplate.git"
+  },
   "bin": {
     "cra-tailwind-boilerplate": "src/cli.js"
   },
