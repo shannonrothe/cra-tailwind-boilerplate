@@ -11,6 +11,7 @@
     "cra-tailwind-boilerplate": "src/cli.js"
   },
   "scripts": {
+    "lint": "eslint src/cli.js",
     "test": "NODE_ENV=test jest --rootDir ./src"
   },
   "jest": {
