@@ -164,7 +164,7 @@ const updateStubs = async () => {
       },
     );
 
-    return true;
+    return Promise.resolve();
   }));
 
   promises.push(readFile(path.join(baseDir, 'stubs', 'App.stub.tsx'), {
@@ -183,7 +183,7 @@ const updateStubs = async () => {
       },
     );
 
-    return true;
+    return Promise.resolve();
   }));
 
   await Promise.all(promises);
